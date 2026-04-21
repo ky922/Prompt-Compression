@@ -1,24 +1,16 @@
 """
-消融实验脚本：AdaptPrompt vs 消融变体 vs 最优 Baseline
-=======================================================
-运行方式：
-    cd /project/Prompt-Compression
+Ablation study: AdaptPrompt vs ablation variants vs best baseline.
+
+Usage:
     python experiments/ablation_study.py --task narrativeqa
     python experiments/ablation_study.py --task multinews
     python experiments/ablation_study.py --task all
 
-对比方案（4路对比）
--------------------
-1. AdaptPrompt      = SAMS + QGCP         (完整方法)
-2. AdaptPrompt-noB  = SAMS only           (消融 B，验证 QGCP 贡献)
-3. AdaptPrompt-noA  = BM25 + QGCP        (消融 A，验证 SAMS 贡献)
-4. LLMLingua        = 当前最优 baseline   (对比基准)
-
-预期结论
---------
-  AdaptPrompt > AdaptPrompt-noB  → B(QGCP) 有独立贡献
-  AdaptPrompt > AdaptPrompt-noA  → A(SAMS) 有独立贡献
-  AdaptPrompt > LLMLingua        → 整体超越当前最优
+Methods:
+    AdaptPrompt      = SAMS + QGCP  (full method)
+    AdaptPrompt-noB  = SAMS only    (ablate QGCP)
+    AdaptPrompt-noA  = BM25 + QGCP  (ablate SAMS)
+    LLMLingua        = best baseline
 """
 
 import os
@@ -45,14 +37,7 @@ from src.innovation import AdaptPrompt, AdaptPromptNoA, AdaptPromptNoB
 from src.baselines.llmlingua import LLMLinguaCompressor
 
 
-# ─────────────────────────── 配置 ────────────────────────────────
-
-# ── 消融实验成本控制 ──────────────────────────────────────────────
-# 每轮 API 成本估算：
-#   ABLATION_SAMPLES × avg_tokens_per_sample × price_per_token
-#   = 100 × 1000 × ¥1/1M = ¥0.10/轮
-#   4 ratio × 4 方法 × 2 数据集 = 32 轮 × ¥0.10 ≈ ¥3.2 总计
-RATIOS  = [0.3, 0.4, 0.5, 0.6]   # 4 个，覆盖核心中等压缩区间
+RATIOS  = [0.3, 0.4, 0.5, 0.6]
 
 import torch as _torch
 DEVICE  = "cuda" if _torch.cuda.is_available() else "cpu"

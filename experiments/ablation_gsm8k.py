@@ -49,15 +49,10 @@ from src.innovation.icl_adapt import (
 )
 from src.baselines.llmlingua import LLMLinguaCompressor
 
-SAMPLES = 50   # 轻量配置
-
-
-# ─────────────────────────── 配置 ─────────────────────────────────
-
 TASK       = "gsm8k"
 RATIOS     = [0.3, 0.4, 0.5, 0.6]
-SAMPLES    = 100
-MAX_OUT    = 256      # GSM8K 需要 chain-of-thought，比 QA 任务更多 token
+SAMPLES    = 50
+MAX_OUT    = 256
 DEVICE     = "cuda" if _torch.cuda.is_available() else "cpu"
 
 METHOD_STYLES = {

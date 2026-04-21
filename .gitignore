@@ -28,6 +28,10 @@ results/raw/*.json
 # Logs (regenerated on each run)
 results/logs/
 
+# Generated figures and tables (reproducible via run_all.sh)
+results/figures/
+results/tables/
+
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb

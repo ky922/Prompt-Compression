@@ -23,5 +23,8 @@ pandas>=2.0.0
 # sentence-transformers（SAMS / QGCP 需要）
 sentence-transformers>=2.7.0
 
+# BM25（用于 AdaptPrompt-noA 变体）
+rank-bm25>=0.2.2
+
 # 可选：官方 LLMLingua（若不安装则自动 fallback）
 llmlingua>=0.2.0
