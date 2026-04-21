@@ -1,5 +1,5 @@
 """
-Ablation study: AdaptPrompt vs ablation variants vs best baseline.
+Ablation study: GrainPrompt vs ablation variants vs best baseline.
 
 Usage:
     python experiments/ablation_study.py --task narrativeqa
@@ -7,9 +7,9 @@ Usage:
     python experiments/ablation_study.py --task all
 
 Methods:
-    AdaptPrompt      = SAMS + QGCP  (full method)
-    AdaptPrompt-noB  = SAMS only    (ablate QGCP)
-    AdaptPrompt-noA  = BM25 + QGCP  (ablate SAMS)
+    GrainPrompt      = SAMS + QGCP  (full method)
+    GrainPrompt-noB  = SAMS only    (ablate QGCP)
+    GrainPrompt-noA  = BM25 + QGCP  (ablate SAMS)
     LLMLingua        = best baseline
 """
 
@@ -33,7 +33,7 @@ from src.data_loader import load_data
 from src.utils import get_logger
 from src.evaluation.evaluator import Evaluator
 
-from src.innovation import AdaptPrompt, AdaptPromptNoA, AdaptPromptNoB
+from src.innovation import GrainPrompt, GrainPromptNoA, GrainPromptNoB
 from src.baselines.llmlingua import LLMLinguaCompressor
 
 
@@ -43,9 +43,9 @@ import torch as _torch
 DEVICE  = "cuda" if _torch.cuda.is_available() else "cpu"
 
 METHOD_STYLES = {
-    "AdaptPrompt":     {"color": "#E74C3C", "marker": "★", "lw": 2.5, "zorder": 6},
-    "AdaptPrompt-noB": {"color": "#F39C12", "marker": "s", "lw": 1.8, "zorder": 5},
-    "AdaptPrompt-noA": {"color": "#3498DB", "marker": "^", "lw": 1.8, "zorder": 5},
+    "GrainPrompt":     {"color": "#E74C3C", "marker": "★", "lw": 2.5, "zorder": 6},
+    "GrainPrompt-noB": {"color": "#F39C12", "marker": "s", "lw": 1.8, "zorder": 5},
+    "GrainPrompt-noA": {"color": "#3498DB", "marker": "^", "lw": 1.8, "zorder": 5},
     "LLMLingua":       {"color": "#9B59B6", "marker": "P", "lw": 1.8, "zorder": 4},
 }
 
@@ -109,9 +109,9 @@ def run_task(task: str, config: Config):
 
     # 初始化方法（懒加载，避免不必要地加载模型）
     methods = {
-        "AdaptPrompt":     lambda: AdaptPrompt(device=DEVICE),
-        "AdaptPrompt-noB": lambda: AdaptPromptNoB(device=DEVICE),
-        "AdaptPrompt-noA": lambda: AdaptPromptNoA(device=DEVICE),
+        "GrainPrompt":     lambda: GrainPrompt(device=DEVICE),
+        "GrainPrompt-noB": lambda: GrainPromptNoB(device=DEVICE),
+        "GrainPrompt-noA": lambda: GrainPromptNoA(device=DEVICE),
         "LLMLingua":       lambda: LLMLinguaCompressor(device=DEVICE),
     }
     instances = {}

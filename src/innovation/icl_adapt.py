@@ -1,5 +1,5 @@
 """
-ICL（In-Context Learning）场景下的 AdaptPrompt 适配器
+ICL（In-Context Learning）场景下的 GrainPrompt 适配器
 =======================================================
 
 在 Few-shot ICL 中，压缩对象是"示例（demonstrations）"：
@@ -8,9 +8,9 @@ ICL（In-Context Learning）场景下的 AdaptPrompt 适配器
 
 方法对比（4路消融）
 -------------------
-  AdaptPrompt-ICL       = SAMS-ICL + QGCP-ICL   (完整方法)
-  AdaptPrompt-ICL-noB   = SAMS-ICL only          (消融 B：验证 QGCP 贡献)
-  AdaptPrompt-ICL-noA   = BM25-ICL + QGCP-ICL   (消融 A：验证 SAMS 贡献)
+  GrainPrompt-ICL       = SAMS-ICL + QGCP-ICL   (完整方法)
+  GrainPrompt-ICL-noB   = SAMS-ICL only          (消融 B：验证 QGCP 贡献)
+  GrainPrompt-ICL-noA   = BM25-ICL + QGCP-ICL   (消融 A：验证 SAMS 贡献)
   LLMLingua             = token 级压缩（现有封装，不变）
 
 关键 insight
@@ -53,7 +53,7 @@ class SAMSICLCompressor:
       - 实际 CR ≈ keep_ratio（各 demo 长度近似相等时）
     """
 
-    name = "AdaptPrompt-ICL-noB"   # 单独使用时的名称
+    name = "GrainPrompt-ICL-noB"   # 单独使用时的名称
 
     def __init__(
         self,
@@ -205,7 +205,7 @@ class QGCPICLCompressor:
     不删除最终数值答案行（#### N）。
     """
 
-    name = "AdaptPrompt-ICL-noA"
+    name = "GrainPrompt-ICL-noA"
 
     def __init__(self, threshold: float = 0.12, device: str = "cpu"):
         self.threshold = threshold
@@ -253,7 +253,7 @@ class QGCPICLCompressor:
 
 class BM25ICLCompressor:
     """
-    BM25 demo 选例器（AdaptPrompt-ICL-noA 中的选例阶段）。
+    BM25 demo 选例器（GrainPrompt-ICL-noA 中的选例阶段）。
     对每条示例用 BM25 打分，保留与测试问题最相关的 top-k 条。
     """
 
@@ -305,16 +305,16 @@ class BM25ICLCompressor:
         return [self.compress(s, keep_ratio) for s in samples]
 
 
-# ─────────────── AdaptPrompt-ICL（完整方法 A+B） ──────────────────
+# ─────────────── GrainPrompt-ICL（完整方法 A+B） ──────────────────
 
-class AdaptPromptICL:
+class GrainPromptICL:
     """
     完整方法：SAMS-ICL（创新点 A）+ QGCP-ICL（创新点 B）串联。
       Stage 1：MMR 语义选例 → 删除冗余/不相关示例
       Stage 2：句法成分剪裁 → 在保留示例内部进一步削减 token
     """
 
-    name = "AdaptPrompt-ICL"
+    name = "GrainPrompt-ICL"
 
     def __init__(
         self,
@@ -340,12 +340,12 @@ class AdaptPromptICL:
         return [self.compress(s, keep_ratio) for s in samples]
 
 
-# ─────────────── AdaptPrompt-ICL-noB（仅 SAMS） ──────────────────
+# ─────────────── GrainPrompt-ICL-noB（仅 SAMS） ──────────────────
 
-class AdaptPromptICLNoB:
+class GrainPromptICLNoB:
     """消融变体：仅 SAMS-ICL，移除 QGCP。验证创新点 B 的独立贡献。"""
 
-    name = "AdaptPrompt-ICL-noB"
+    name = "GrainPrompt-ICL-noB"
 
     def __init__(
         self,
@@ -368,12 +368,12 @@ class AdaptPromptICLNoB:
         return [self.compress(s, keep_ratio) for s in samples]
 
 
-# ─────────────── AdaptPrompt-ICL-noA（BM25+QGCP） ────────────────
+# ─────────────── GrainPrompt-ICL-noA（BM25+QGCP） ────────────────
 
-class AdaptPromptICLNoA:
+class GrainPromptICLNoA:
     """消融变体：BM25-ICL + QGCP-ICL，替换 SAMS。验证创新点 A 的独立贡献。"""
 
-    name = "AdaptPrompt-ICL-noA"
+    name = "GrainPrompt-ICL-noA"
 
     def __init__(
         self,

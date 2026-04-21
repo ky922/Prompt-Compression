@@ -29,17 +29,17 @@ with open("results/raw/narrativeqa_curves.json")              as f: nqa_base = j
 with open("results/raw/multinews_curves.json")                as f: mn_base  = json.load(f)
 
 COLORS = {
-    "AdaptPrompt":         "#E74C3C",
-    "AdaptPrompt-noB":     "#F39C12",
-    "AdaptPrompt-noA":     "#3498DB",
-    "AdaptPrompt-ICL":     "#E74C3C",
-    "AdaptPrompt-ICL-noB": "#F39C12",
-    "AdaptPrompt-ICL-noA": "#3498DB",
+    "GrainPrompt":         "#E74C3C",
+    "GrainPrompt-noB":     "#F39C12",
+    "GrainPrompt-noA":     "#3498DB",
+    "GrainPrompt-ICL":     "#E74C3C",
+    "GrainPrompt-ICL-noB": "#F39C12",
+    "GrainPrompt-ICL-noA": "#3498DB",
     "LLMLingua":           "#9C27B0",
 }
 MARKERS = {
-    "AdaptPrompt": "*", "AdaptPrompt-noB": "s", "AdaptPrompt-noA": "^",
-    "AdaptPrompt-ICL": "*", "AdaptPrompt-ICL-noB": "s", "AdaptPrompt-ICL-noA": "^",
+    "GrainPrompt": "*", "GrainPrompt-noB": "s", "GrainPrompt-noA": "^",
+    "GrainPrompt-ICL": "*", "GrainPrompt-ICL-noB": "s", "GrainPrompt-ICL-noA": "^",
     "LLMLingua": "P",
 }
 
@@ -58,36 +58,36 @@ fig.suptitle("Ablation Study", fontsize=14, fontweight="bold")
 
 # — NarrativeQA —
 ax = axes[0]
-for m, lbl in [("AdaptPrompt","AdaptPrompt (Full)"),
-               ("AdaptPrompt-noB","w/o QGCP"),
-               ("AdaptPrompt-noA","w/o SAMS"),
+for m, lbl in [("GrainPrompt","GrainPrompt (Full)"),
+               ("GrainPrompt-noB","w/o QGCP"),
+               ("GrainPrompt-noA","w/o SAMS"),
                ("LLMLingua","LLMLingua")]:
-    lw = 2.5 if m in ("AdaptPrompt","LLMLingua") else 1.8
-    ms = 10  if m == "AdaptPrompt" else 7
+    lw = 2.5 if m in ("GrainPrompt","LLMLingua") else 1.8
+    ms = 10  if m == "GrainPrompt" else 7
     plot_abl_curve(ax, nqa, m, "f1", lbl, lw=lw, ms=ms)
 ax.set_xlabel("Compression Ratio"); ax.set_ylabel("F1 Score")
 ax.set_title("NarrativeQA", fontweight="bold"); ax.legend(fontsize=9)
 
 # — Multi-News —
 ax = axes[1]
-for m, lbl in [("AdaptPrompt","AdaptPrompt (Full)"),
-               ("AdaptPrompt-noB","w/o QGCP"),
-               ("AdaptPrompt-noA","w/o SAMS"),
+for m, lbl in [("GrainPrompt","GrainPrompt (Full)"),
+               ("GrainPrompt-noB","w/o QGCP"),
+               ("GrainPrompt-noA","w/o SAMS"),
                ("LLMLingua","LLMLingua")]:
-    lw = 2.5 if m in ("AdaptPrompt","LLMLingua") else 1.8
-    ms = 10  if m == "AdaptPrompt" else 7
+    lw = 2.5 if m in ("GrainPrompt","LLMLingua") else 1.8
+    ms = 10  if m == "GrainPrompt" else 7
     plot_abl_curve(ax, mn, m, "rouge1", lbl, lw=lw, ms=ms)
 ax.set_xlabel("Compression Ratio"); ax.set_ylabel("ROUGE-1")
 ax.set_title("Multi-News", fontweight="bold"); ax.legend(fontsize=9)
 
 # — GSM8K —
 ax = axes[2]
-for m, lbl in [("AdaptPrompt-ICL","AdaptPrompt-ICL (Full)"),
-               ("AdaptPrompt-ICL-noB","w/o QGCP"),
-               ("AdaptPrompt-ICL-noA","w/o SAMS"),
+for m, lbl in [("GrainPrompt-ICL","GrainPrompt-ICL (Full)"),
+               ("GrainPrompt-ICL-noB","w/o QGCP"),
+               ("GrainPrompt-ICL-noA","w/o SAMS"),
                ("LLMLingua","LLMLingua")]:
-    lw = 2.5 if m in ("AdaptPrompt-ICL","LLMLingua") else 1.8
-    ms = 10  if m == "AdaptPrompt-ICL" else 7
+    lw = 2.5 if m in ("GrainPrompt-ICL","LLMLingua") else 1.8
+    ms = 10  if m == "GrainPrompt-ICL" else 7
     plot_abl_curve(ax, gsm, m, "accuracy", lbl, lw=lw, ms=ms)
 ax.axhline(0.86, color="#555555", ls="--", lw=1.5, label="Full Prompt (0.86)")
 ax.set_xlabel("Compression Ratio"); ax.set_ylabel("Accuracy")
@@ -104,9 +104,9 @@ plt.close()
 fig, ax = plt.subplots(figsize=(7, 5))
 
 for m, lbl, color, marker, lw, ms in [
-    ("AdaptPrompt-ICL",    "AdaptPrompt-ICL (Ours)", "#E74C3C", "*",  2.8, 13),
-    ("AdaptPrompt-ICL-noB","w/o QGCP",               "#F39C12", "s",  1.8, 7),
-    ("AdaptPrompt-ICL-noA","w/o SAMS",                "#3498DB", "^",  1.8, 7),
+    ("GrainPrompt-ICL",    "GrainPrompt-ICL (Ours)", "#E74C3C", "*",  2.8, 13),
+    ("GrainPrompt-ICL-noB","w/o QGCP",               "#F39C12", "s",  1.8, 7),
+    ("GrainPrompt-ICL-noA","w/o SAMS",                "#3498DB", "^",  1.8, 7),
     ("LLMLingua",          "LLMLingua",               "#9C27B0", "P",  2.2, 8),
 ]:
     pts = gsm[m]
@@ -151,9 +151,9 @@ for method in ["Full Prompt", "Random Drop", "TF-IDF", "BM25", "Selective Contex
 
 # our methods (消融 checkpoint 里取)
 for method, label in [
-    ("AdaptPrompt",    "AdaptPrompt (Ours)"),
-    ("AdaptPrompt-noA","  w/o SAMS"),
-    ("AdaptPrompt-noB","  w/o QGCP"),
+    ("GrainPrompt",    "GrainPrompt (Ours)"),
+    ("GrainPrompt-noA","  w/o SAMS"),
+    ("GrainPrompt-noB","  w/o QGCP"),
 ]:
     nqa_cr, nqa_f1 = best_near_ckpt(nqa[method], "f1")
     mn_cr,  mn_r1  = best_near_ckpt(mn[method],  "rouge1")
@@ -161,7 +161,7 @@ for method, label in [
 
 # GSM8K methods
 for method, label in [
-    ("AdaptPrompt-ICL", "AdaptPrompt-ICL (Ours)"),
+    ("GrainPrompt-ICL", "GrainPrompt-ICL (Ours)"),
     ("LLMLingua",       "LLMLingua (GSM8K)"),
 ]:
     gsm_cr, gsm_acc = best_near_ckpt(gsm[method], "accuracy")
@@ -184,7 +184,7 @@ tbl.auto_set_font_size(False); tbl.set_fontsize(10)
 tbl.scale(1, 1.5)
 
 # 高亮 our methods 行
-our_methods = {"AdaptPrompt (Ours)", "  w/o SAMS", "  w/o QGCP", "AdaptPrompt-ICL (Ours)"}
+our_methods = {"GrainPrompt (Ours)", "  w/o SAMS", "  w/o QGCP", "GrainPrompt-ICL (Ours)"}
 for i, row in enumerate(rows):
     if row[0] in our_methods:
         for j in range(len(col_labels)):

@@ -1,13 +1,13 @@
-# AdaptPrompt: Semantic-Aware Prompt Compression for LLMs
+# GrainPrompt: Semantic-Aware Prompt Compression for LLMs
 
-**AdaptPrompt** is a lightweight, training-free prompt compression framework that combines two complementary modules to improve the compression–performance tradeoff for large language models.
+**GrainPrompt** is a lightweight, training-free prompt compression framework that combines two complementary modules to improve the compression–performance tradeoff for large language models.
 
 | Module | Name | Description |
 |--------|------|-------------|
 | **A** | SAMS | Semantic-Aware MMR Selection — sentence-level selection via Maximal Marginal Relevance |
 | **B** | QGCP | Query-Guided Constituent Pruning — regex-based intra-sentence pruning of dispensable constituents |
 
-An ICL-aware variant (**AdaptPrompt-ICL**) additionally protects chain-of-thought reasoning steps in few-shot demonstrations.
+An ICL-aware variant (**GrainPrompt-ICL**) additionally protects chain-of-thought reasoning steps in few-shot demonstrations.
 
 ---
 
@@ -18,17 +18,17 @@ An ICL-aware variant (**AdaptPrompt-ICL**) additionally protects chain-of-though
 | Method | Accuracy | Compression Ratio |
 |--------|----------|-------------------|
 | Full Prompt | 88% | 1.00 |
-| **AdaptPrompt-ICL** | **84%** | 0.35 |
+| **GrainPrompt-ICL** | **84%** | 0.35 |
 | LLMLingua | 74% | 0.52 |
 | Random Drop | 48% | 0.50 |
 
-**AdaptPrompt-ICL retains +10 pp accuracy over LLMLingua at a lower compression ratio.**
+**GrainPrompt-ICL retains +10 pp accuracy over LLMLingua at a lower compression ratio.**
 
 ### NarrativeQA (reading comprehension, F1)
 
 | Method | F1 @ CR≈0.5 |
 |--------|-------------|
-| AdaptPrompt-noA | **0.053** |
+| GrainPrompt-noA | **0.053** |
 | LLMLingua | 0.050 |
 | BM25 | 0.049 |
 
@@ -37,7 +37,7 @@ An ICL-aware variant (**AdaptPrompt-ICL**) additionally protects chain-of-though
 | Method | ROUGE-1 @ CR≈0.5 |
 |--------|------------------|
 | LLMLingua | **0.376** |
-| AdaptPrompt | 0.332 |
+| GrainPrompt | 0.332 |
 | BM25 | 0.340 |
 
 ---
@@ -70,7 +70,7 @@ Pure similarity ranking causes semantic overlap between selected sentences. MMR 
 Token-level compression (e.g., LLMLingua) can break syntactic boundaries and destroy reasoning chains. QGCP operates at the constituent level, preserving grammaticality.
 
 **Why ICL-aware?**  
-In few-shot scenarios, demonstrations have a fixed question–answer structure. AdaptPrompt-ICL compresses only the description parts and never truncates mid-reasoning-step, preserving the full chain-of-thought.
+In few-shot scenarios, demonstrations have a fixed question–answer structure. GrainPrompt-ICL compresses only the description parts and never truncates mid-reasoning-step, preserving the full chain-of-thought.
 
 ---
 
@@ -84,8 +84,8 @@ In few-shot scenarios, demonstrations have a fixed question–answer structure. 
 ### Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/AdaptPrompt.git
-cd AdaptPrompt/Prompt-Compression
+git clone https://github.com/YOUR_USERNAME/GrainPrompt.git
+cd GrainPrompt/Prompt-Compression
 
 # Create and activate virtual environment
 python -m venv venv
@@ -173,7 +173,7 @@ Prompt-Compression/
 │   │   ├── module_a.py          # SAMS: Semantic-Aware MMR Selection
 │   │   ├── module_b.py          # QGCP: Query-Guided Constituent Pruning
 │   │   ├── icl_adapt.py         # ICL-aware variants (protects CoT)
-│   │   └── __init__.py          # AdaptPrompt, AdaptPromptNoA, AdaptPromptNoB
+│   │   └── __init__.py          # GrainPrompt, GrainPromptNoA, GrainPromptNoB
 │   └── visualization/
 │       └── plotter.py           # Compression-vs-performance curves, Pareto plots
 ├── experiments/
@@ -181,7 +181,7 @@ Prompt-Compression/
 │   ├── run_multinews.py         # Baseline eval: Multi-News
 │   ├── ablation_study.py        # Ablation: NarrativeQA + Multi-News
 │   ├── ablation_gsm8k.py        # Ablation: GSM8K ICL
-│   ├── plot_with_adaptprompt.py # Main comparison figure (baseline + AdaptPrompt)
+│   ├── plot_with_adaptprompt.py # Main comparison figure (baseline + GrainPrompt)
 │   ├── plot_paper_figures.py    # Ablation curve figures
 │   └── run_all.sh               # One-click reproduction
 ├── results/
@@ -227,7 +227,7 @@ All experiment scripts support automatic checkpoint recovery. If a run is interr
 
 ```bibtex
 @article{adaptprompt2026,
-  title   = {AdaptPrompt: Semantic-Aware Prompt Compression via MMR Selection and Constituent Pruning},
+  title   = {GrainPrompt: Semantic-Aware Prompt Compression via MMR Selection and Constituent Pruning},
   author  = {Anonymous},
   year    = {2026},
 }

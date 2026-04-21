@@ -1,5 +1,5 @@
 """
-AdaptPrompt：两阶段 Prompt 压缩方法。
+GrainPrompt：两阶段 Prompt 压缩方法。
 
 创新点
 ------
@@ -14,9 +14,9 @@ B - QGCP (Query-Guided Constituent Pruning)：
 
 消融变体
 --------
-AdaptPrompt      = SAMS + QGCP  (完整方法)
-AdaptPrompt-noB  = SAMS only    (消融 B)
-AdaptPrompt-noA  = BM25 + QGCP  (消融 A)
+GrainPrompt      = SAMS + QGCP  (完整方法)
+GrainPrompt-noB  = SAMS only    (消融 B)
+GrainPrompt-noA  = BM25 + QGCP  (消融 A)
 """
 
 from typing import List, Dict
@@ -25,15 +25,15 @@ from src.innovation.module_a import SAMSCompressor
 from src.innovation.module_b import QGCPCompressor
 
 
-# ─────────────────────── AdaptPrompt (A+B) ───────────────────────
+# ─────────────────────── GrainPrompt (A+B) ───────────────────────
 
-class AdaptPrompt:
+class GrainPrompt:
     """
     完整方法：SAMS（创新点 A）+ QGCP（创新点 B）串联。
     Stage 1：MMR 语义选句 → Stage 2：句内成分剪裁
     """
 
-    name = "AdaptPrompt"
+    name = "GrainPrompt"
 
     def __init__(
         self,
@@ -59,15 +59,15 @@ class AdaptPrompt:
         return [self.compress(s, keep_ratio) for s in samples]
 
 
-# ─────────────────────── AdaptPrompt-noB (仅 A) ──────────────────
+# ─────────────────────── GrainPrompt-noB (仅 A) ──────────────────
 
-class AdaptPromptNoB:
+class GrainPromptNoB:
     """
     消融变体：仅使用 SAMS，移除 QGCP。
     用于验证创新点 B 的独立贡献。
     """
 
-    name = "AdaptPrompt-noB"
+    name = "GrainPrompt-noB"
 
     def __init__(
         self,
@@ -91,15 +91,15 @@ class AdaptPromptNoB:
         return [self.compress(s, keep_ratio) for s in samples]
 
 
-# ─────────────────────── AdaptPrompt-noA (仅 B) ──────────────────
+# ─────────────────────── GrainPrompt-noA (仅 B) ──────────────────
 
-class AdaptPromptNoA:
+class GrainPromptNoA:
     """
     消融变体：将 SAMS 替换为 BM25，保留 QGCP。
     用于验证创新点 A 的独立贡献。
     """
 
-    name = "AdaptPrompt-noA"
+    name = "GrainPrompt-noA"
 
     def __init__(
         self,

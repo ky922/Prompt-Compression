@@ -1,5 +1,5 @@
 """
-在 baseline 曲线图上叠加 AdaptPrompt（完整版），生成对比图。
+在 baseline 曲线图上叠加 GrainPrompt（完整版），生成对比图。
 输出：results/figures/fig_baseline_with_adaptprompt.png
 """
 import os, sys, json
@@ -47,27 +47,27 @@ for ax, base_data, abl_data, perf_key, ylabel, title in configs:
                 linestyle=st["ls"], alpha=st.get("alpha", 1.0),
                 label=method, zorder=3)
 
-    # AdaptPrompt（消融数据完整版）
-    pts = abl_data["AdaptPrompt"]
+    # GrainPrompt（消融数据完整版）
+    pts = abl_data["GrainPrompt"]
     xs = [pts[r]["compression_ratio"] for r in sorted(pts)]
     ys = [pts[r].get(perf_key, 0)     for r in sorted(pts)]
-    ax.plot(xs, ys, label="AdaptPrompt (Ours)", **OURS_STYLE)
+    ax.plot(xs, ys, label="GrainPrompt (Ours)", **OURS_STYLE)
 
     # NarrativeQA 额外展示 noA 变体（仅 QGCP，表现更好）
     if perf_key == "f1":
-        pts_noa = abl_data["AdaptPrompt-noA"]
+        pts_noa = abl_data["GrainPrompt-noA"]
         xs_noa = [pts_noa[r]["compression_ratio"] for r in sorted(pts_noa)]
         ys_noa = [pts_noa[r].get(perf_key, 0)     for r in sorted(pts_noa)]
         ax.plot(xs_noa, ys_noa, color="#3498DB", marker="^", markersize=8,
                 linewidth=2.0, linestyle="--", zorder=8,
-                label="AdaptPrompt w/o SAMS (Ours)")
+                label="GrainPrompt w/o SAMS (Ours)")
 
     ax.set_xlabel("Compression Ratio", fontsize=12)
     ax.set_ylabel(ylabel, fontsize=12)
     ax.set_title(title, fontsize=13, fontweight="bold")
     ax.legend(fontsize=9, loc="lower right", framealpha=0.9)
 
-fig.suptitle("AdaptPrompt vs. Baselines: Compression Ratio vs. Performance",
+fig.suptitle("GrainPrompt vs. Baselines: Compression Ratio vs. Performance",
              fontsize=13, fontweight="bold", y=1.02)
 plt.tight_layout()
 

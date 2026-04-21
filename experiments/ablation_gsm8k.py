@@ -5,18 +5,18 @@ GSM8K Few-shot ICL 消融实验脚本
 
 对比方案（4路）
 ---------------
-1. AdaptPrompt-ICL       = SAMS-ICL + QGCP-ICL     (完整方法)
-2. AdaptPrompt-ICL-noB   = SAMS-ICL only            (消融 B)
-3. AdaptPrompt-ICL-noA   = BM25-ICL + QGCP-ICL      (消融 A)
+1. GrainPrompt-ICL       = SAMS-ICL + QGCP-ICL     (完整方法)
+2. GrainPrompt-ICL-noB   = SAMS-ICL only            (消融 B)
+3. GrainPrompt-ICL-noA   = BM25-ICL + QGCP-ICL      (消融 A)
 4. LLMLingua             = token 级压缩              (SOTA 基准)
 
 核心假设
 --------
-- AdaptPrompt-ICL > LLMLingua：
+- GrainPrompt-ICL > LLMLingua：
     MMR 保留结构完整示例 > LLMLingua token 级截断破坏推理链
-- AdaptPrompt-ICL > AdaptPrompt-ICL-noB：
+- GrainPrompt-ICL > GrainPrompt-ICL-noB：
     QGCP 削减解答中的冗余成分，进一步节省 token 同时保留推理步骤
-- AdaptPrompt-ICL > AdaptPrompt-ICL-noA：
+- GrainPrompt-ICL > GrainPrompt-ICL-noA：
     SAMS MMR 的 query-aware 示例选择 > BM25 词汇匹配
 
 运行方式
@@ -45,7 +45,7 @@ from src.config import Config
 from src.data_loader import load_data
 from src.evaluation.evaluator import Evaluator
 from src.innovation.icl_adapt import (
-    AdaptPromptICL, AdaptPromptICLNoB, AdaptPromptICLNoA
+    GrainPromptICL, GrainPromptICLNoB, GrainPromptICLNoA
 )
 from src.baselines.llmlingua import LLMLinguaCompressor
 
@@ -56,9 +56,9 @@ MAX_OUT    = 256
 DEVICE     = "cuda" if _torch.cuda.is_available() else "cpu"
 
 METHOD_STYLES = {
-    "AdaptPrompt-ICL":     {"color": "#E74C3C", "marker": "*",  "lw": 2.5, "zorder": 6},
-    "AdaptPrompt-ICL-noB": {"color": "#F39C12", "marker": "s",  "lw": 1.8, "zorder": 5},
-    "AdaptPrompt-ICL-noA": {"color": "#3498DB", "marker": "^",  "lw": 1.8, "zorder": 5},
+    "GrainPrompt-ICL":     {"color": "#E74C3C", "marker": "*",  "lw": 2.5, "zorder": 6},
+    "GrainPrompt-ICL-noB": {"color": "#F39C12", "marker": "s",  "lw": 1.8, "zorder": 5},
+    "GrainPrompt-ICL-noA": {"color": "#3498DB", "marker": "^",  "lw": 1.8, "zorder": 5},
     "LLMLingua":           {"color": "#9B59B6", "marker": "P",  "lw": 1.8, "zorder": 4},
 }
 
@@ -121,9 +121,9 @@ def run_gsm8k(config: Config):
     results   = _load_checkpoint(ckpt_path)
 
     methods = {
-        "AdaptPrompt-ICL":     lambda: AdaptPromptICL(device=DEVICE),
-        "AdaptPrompt-ICL-noB": lambda: AdaptPromptICLNoB(device=DEVICE),
-        "AdaptPrompt-ICL-noA": lambda: AdaptPromptICLNoA(device=DEVICE),
+        "GrainPrompt-ICL":     lambda: GrainPromptICL(device=DEVICE),
+        "GrainPrompt-ICL-noB": lambda: GrainPromptICLNoB(device=DEVICE),
+        "GrainPrompt-ICL-noA": lambda: GrainPromptICLNoA(device=DEVICE),
         "LLMLingua":           lambda: LLMLinguaCompressor(device=DEVICE),
     }
     instances = {}

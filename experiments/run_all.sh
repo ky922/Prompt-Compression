@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-#  AdaptPrompt — One-click Reproduction Script
+#  GrainPrompt — One-click Reproduction Script
 #  Estimated API cost: ~2,300 calls × $0.001 ≈ $2–3 USD
 #  Hardware: CPU only (no GPU required for compression)
 #  Time:     ~30–60 min depending on API latency
@@ -25,7 +25,7 @@ if [[ -f "venv/bin/activate" ]]; then
 fi
 
 echo "======================================================="
-echo "  AdaptPrompt — Reproducibility Script"
+echo "  GrainPrompt — Reproducibility Script"
 echo "  Config: 50 samples, ratios=[0.2,0.3,0.5,0.7,0.9]"
 echo "======================================================="
 
@@ -54,7 +54,7 @@ python experiments/ablation_gsm8k.py
 # ── 4. Plot figures ──────────────────────────────────────────
 echo ""
 echo "[5/5] Generating figures..."
-python experiments/plot_with_adaptprompt.py   # Fig 1: baseline + AdaptPrompt
+python experiments/plot_with_adaptprompt.py   # Fig 1: baseline + GrainPrompt
 python experiments/plot_paper_figures.py       # Fig 2+: ablation curves
 
 echo ""
