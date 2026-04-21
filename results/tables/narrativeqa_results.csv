@@ -1,7 +1,0 @@
-Method,f1,em,avg_compression_ratio
-Full Prompt,0.0715,0.0,1.0
-Random Drop,0.0654,0.0,0.5053
-TF-IDF,0.0746,0.0,0.5753
-BM25,0.0752,0.0,0.5753
-LLMLingua,0.0751,0.0,0.381
-Selective Context,0.0687,0.0,0.4335

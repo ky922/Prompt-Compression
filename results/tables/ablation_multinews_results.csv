@@ -1,5 +1,0 @@
-Method,Avg Compression Ratio,Avg ROUGE1,Best ROUGE1
-LLMLingua,0.3307,0.3206,0.3351
-AdaptPrompt,0.5371,0.322,0.3319
-AdaptPrompt-noB,0.5414,0.3229,0.3321
-AdaptPrompt-noA,0.6029,0.3317,0.3385
