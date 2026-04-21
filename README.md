@@ -226,10 +226,10 @@ All experiment scripts support automatic checkpoint recovery. If a run is interr
 ## Citation
 
 ```bibtex
-@article{adaptprompt2024,
+@article{adaptprompt2026,
   title   = {AdaptPrompt: Semantic-Aware Prompt Compression via MMR Selection and Constituent Pruning},
   author  = {Anonymous},
-  year    = {2024},
+  year    = {2026},
 }
 ```
 
