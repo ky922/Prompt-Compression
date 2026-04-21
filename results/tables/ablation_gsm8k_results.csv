@@ -1,0 +1,6 @@
+Method,Avg CR,Avg Acc,Best Acc
+LLMLingua,0.3915,0.675,0.74
+AdaptPrompt-ICL,0.418,0.835,0.84
+AdaptPrompt-ICL-noB,0.418,0.83,0.85
+AdaptPrompt-ICL-noA,0.5013,0.8375,0.86
+Full Prompt (8-shot),1.0,0.86,0.86

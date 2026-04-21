@@ -1,0 +1,5 @@
+Method,Avg Compression Ratio,Avg F1,Best F1
+LLMLingua,0.2999,0.0491,0.0534
+AdaptPrompt,0.4075,0.0438,0.0446
+AdaptPrompt-noB,0.4131,0.0476,0.0502
+AdaptPrompt-noA,0.5434,0.0505,0.0531

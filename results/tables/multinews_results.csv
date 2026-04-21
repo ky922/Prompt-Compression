@@ -1,0 +1,7 @@
+Method,rouge1,rouge2,rougeL,avg_compression_ratio
+Full Prompt,0.3582,0.0,0.0,1.0
+Random Drop,0.3161,0.0,0.0,0.4987
+TF-IDF,0.3479,0.0,0.0,0.6278
+BM25,0.3481,0.0,0.0,0.6309
+LLMLingua,0.3493,0.0905,0.1623,0.3738
+Selective Context,0.2936,0.0788,0.1573,0.4368
