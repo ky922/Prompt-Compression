@@ -2,7 +2,7 @@
 生成论文所需全部图表：
   fig_ablation.png       — 消融实验三任务曲线
   fig_gsm8k_main.png     — GSM8K 主对比图
-  fig_results_table.png  — 结果汇总表（PNG 预览）
+  fig_results_table.png  — 结果汇总表(PNG 预览）
 并打印 LaTeX tabular 代码。
 """
 import os, sys, json
@@ -53,8 +53,10 @@ def plot_abl_curve(ax, ckpt, method, perf_key, label, lw=1.8, ms=7):
 # ══════════════════════════════════════════════════════════════════
 # Figure 1: 消融实验（三任务，1×3）
 # ══════════════════════════════════════════════════════════════════
-fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
-fig.suptitle("Ablation Study", fontsize=14, fontweight="bold")
+# fig3: NarrativeQA + Multi-News ablation (1×2)
+# ══════════════════════════════════════════════════════════════════
+fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+fig.suptitle("Ablation Study: NarrativeQA & Multi-News", fontsize=13, fontweight="bold")
 
 # — NarrativeQA —
 ax = axes[0]
@@ -80,22 +82,45 @@ for m, lbl in [("GrainPrompt","GrainPrompt (Full)"),
 ax.set_xlabel("Compression Ratio"); ax.set_ylabel("ROUGE-1")
 ax.set_title("Multi-News", fontweight="bold"); ax.legend(fontsize=9)
 
-# — GSM8K —
-ax = axes[2]
-for m, lbl in [("GrainPrompt-ICL","GrainPrompt-ICL (Full)"),
-               ("GrainPrompt-ICL-noB","w/o QGCP"),
-               ("GrainPrompt-ICL-noA","w/o SAMS"),
-               ("LLMLingua","LLMLingua")]:
-    lw = 2.5 if m in ("GrainPrompt-ICL","LLMLingua") else 1.8
-    ms = 10  if m == "GrainPrompt-ICL" else 7
-    plot_abl_curve(ax, gsm, m, "accuracy", lbl, lw=lw, ms=ms)
+plt.tight_layout()
+plt.savefig("results/figures/fig3_ablation_nqa_mn.png", dpi=150, bbox_inches="tight")
+print("✓ fig3_ablation_nqa_mn.png saved")
+plt.close()
+
+# ══════════════════════════════════════════════════════════════════
+# fig5: GSM8K ablation bar chart
+# ══════════════════════════════════════════════════════════════════
+fig, ax = plt.subplots(figsize=(7, 4.5))
+
+# 取每个方法在 ratio=0.4 最近点
+bar_methods = [
+    ("GrainPrompt-ICL",     "GrainPrompt-ICL",      "#E74C3C"),
+    ("GrainPrompt-ICL-noB", "w/o QGCP",             "#F39C12"),
+    ("GrainPrompt-ICL-noA", "w/o SAMS",             "#3498DB"),
+    ("LLMLingua",           "LLMLingua",             "#9C27B0"),
+]
+bar_labels, bar_vals, bar_colors = [], [], []
+for mkey, mlbl, mcol in bar_methods:
+    pts = gsm[mkey]
+    best_r = min(pts, key=lambda r: abs(pts[r]["compression_ratio"] - 0.4))
+    bar_labels.append(mlbl)
+    bar_vals.append(pts[best_r].get("accuracy", 0))
+    bar_colors.append(mcol)
+
+bars = ax.bar(range(len(bar_labels)), bar_vals, color=bar_colors, width=0.5, zorder=3)
 ax.axhline(0.86, color="#555555", ls="--", lw=1.5, label="Full Prompt (0.86)")
-ax.set_xlabel("Compression Ratio"); ax.set_ylabel("Accuracy")
-ax.set_title("GSM8K (ICL)", fontweight="bold"); ax.legend(fontsize=9)
+for bar, val in zip(bars, bar_vals):
+    ax.text(bar.get_x() + bar.get_width()/2, val + 0.005, f"{val:.2f}",
+            ha="center", va="bottom", fontsize=10, fontweight="bold")
+ax.set_xticks(range(len(bar_labels)))
+ax.set_xticklabels(bar_labels, fontsize=10)
+ax.set_ylabel("Accuracy", fontsize=12)
+ax.set_title("GSM8K Ablation (CR ≈ 0.4)", fontsize=13, fontweight="bold")
+ax.legend(fontsize=10); ax.set_ylim(0, 1.0)
 
 plt.tight_layout()
-plt.savefig("results/figures/fig_ablation.png", dpi=150, bbox_inches="tight")
-print("✓ fig_ablation.png saved")
+plt.savefig("results/figures/fig5_ablation_bar.png", dpi=150, bbox_inches="tight")
+print("✓ fig5_ablation_bar.png saved")
 plt.close()
 
 # ══════════════════════════════════════════════════════════════════
@@ -124,8 +149,8 @@ ax.set_title("GSM8K: ICL-Aware Prompt Compression", fontsize=13, fontweight="bol
 ax.legend(fontsize=10, loc="lower right", framealpha=0.9)
 
 plt.tight_layout()
-plt.savefig("results/figures/fig_gsm8k_main.png", dpi=150, bbox_inches="tight")
-print("✓ fig_gsm8k_main.png saved")
+plt.savefig("results/figures/fig1_gsm8k_pareto.png", dpi=150, bbox_inches="tight")
+print("✓ fig1_gsm8k_pareto.png saved")
 plt.close()
 
 # ══════════════════════════════════════════════════════════════════
@@ -226,3 +251,45 @@ for r in rows:
 print(r"""\bottomrule
 \end{tabular}}
 \end{table}""")
+
+# ══════════════════════════════════════════════════════════════════
+# method_diagram: pipeline flow diagram
+# ══════════════════════════════════════════════════════════════════
+fig, ax = plt.subplots(figsize=(12, 3.5))
+ax.set_xlim(0, 12); ax.set_ylim(0, 3.5); ax.axis("off")
+
+def box(ax, x, y, w, h, text, fc="#FFFFFF", ec="#333333", fontsize=10, bold=False):
+    rect = plt.Rectangle((x, y), w, h, fc=fc, ec=ec, lw=1.5, zorder=3)
+    ax.add_patch(rect)
+    ax.text(x + w/2, y + h/2, text, ha="center", va="center",
+            fontsize=fontsize, fontweight="bold" if bold else "normal",
+            zorder=4, wrap=True)
+
+def arrow(ax, x1, x2, y):
+    ax.annotate("", xy=(x2, y), xytext=(x1, y),
+                arrowprops=dict(arrowstyle="->", color="#333333", lw=1.5))
+
+# Boxes
+box(ax, 0.2, 1.0, 2.0, 1.5, "Context C\nQuery q\nKeep-ratio r", fc="#EBF5FB", bold=False)
+box(ax, 2.8, 1.1, 2.2, 1.3, "QGCP\n(Constituent\nPruning)", fc="#D5F5E3", bold=True)
+box(ax, 5.7, 1.1, 2.2, 1.3, "SAMS\n(MMR Sentence\nSelection)", fc="#FEF9E7", bold=True)
+box(ax, 8.6, 1.0, 2.0, 1.5, "Compressed\nPrompt", fc="#FDEDEC", bold=False)
+
+# ICL variant note
+box(ax, 5.7, 0.0, 2.2, 0.9, "ICL mode:\nselect full demos", fc="#F8F9FA", ec="#AAAAAA", fontsize=8.5)
+
+# Arrows
+arrow(ax, 2.2, 2.8, 1.75)
+arrow(ax, 5.0, 5.7, 1.75)
+arrow(ax, 7.9, 8.6, 1.75)
+
+# Labels above arrows
+ax.text(2.5, 2.05, "prune\nconstituents", ha="center", fontsize=8, color="#555555")
+ax.text(5.35, 2.05, "rank via\nMMR", ha="center", fontsize=8, color="#555555")
+
+ax.set_title("GrainPrompt Pipeline", fontsize=13, fontweight="bold", pad=8)
+plt.tight_layout()
+plt.savefig("results/figures/method_diagram.png", dpi=150, bbox_inches="tight")
+print("✓ method_diagram.png saved")
+plt.close()
+

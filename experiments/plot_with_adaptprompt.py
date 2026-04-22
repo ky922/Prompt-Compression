@@ -1,6 +1,6 @@
 """
-在 baseline 曲线图上叠加 GrainPrompt（完整版），生成对比图。
-输出：results/figures/fig_baseline_with_adaptprompt.png
+在 baseline 曲线图上叠加 AdaptPrompt生成对比图。
+输出:results/figures/fig_baseline_with_adaptprompt.png
 """
 import os, sys, json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -72,6 +72,6 @@ fig.suptitle("GrainPrompt vs. Baselines: Compression Ratio vs. Performance",
 plt.tight_layout()
 
 os.makedirs("results/figures", exist_ok=True)
-out = "results/figures/fig_baseline_with_adaptprompt.png"
+out = "results/figures/fig2_baseline_curves.png"
 plt.savefig(out, dpi=150, bbox_inches="tight")
 print(f"saved → {out}")
