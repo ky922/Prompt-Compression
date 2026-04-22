@@ -1,13 +1,18 @@
-# GrainPrompt: Semantic-Aware Prompt Compression for LLMs
+# GrainPrompt: Granularity-Aware Prompt Compression for LLMs
 
-**GrainPrompt** is a lightweight, training-free prompt compression framework that combines two complementary modules to improve the compression–performance tradeoff for large language models.
+**GrainPrompt** is a lightweight, training-free prompt compression framework that decomposes compression into two sequential stages operating at different granularities.
 
-| Module | Name | Description |
-|--------|------|-------------|
-| **A** | SAMS | Semantic-Aware MMR Selection — sentence-level selection via Maximal Marginal Relevance |
-| **B** | QGCP | Query-Guided Constituent Pruning — regex-based intra-sentence pruning of dispensable constituents |
+| Module | Name | What it does |
+|--------|------|--------------|
+| **Stage 1** | QGCP | Query-Guided Constituent Pruning — removes dispensable sub-sentence elements (parentheticals, appositives, relative clauses) via regex patterns. Reduces token count by ~8–15% per sentence. **Does not improve task performance on its own.** |
+| **Stage 2** | SAMS | Semantic-Aware MMR Selection — selects a query-relevant, diversity-penalised subset of sentences via Maximal Marginal Relevance. |
 
-An ICL-aware variant (**GrainPrompt-ICL**) additionally protects chain-of-thought reasoning steps in few-shot demonstrations.
+An ICL-aware variant (**GrainPrompt-ICL**) lifts Stage 2 to the **example level**, selecting complete few-shot demonstrations and never truncating mid-reasoning-step.
+
+> **Honest summary of where this works:**
+> GrainPrompt offers a clear advantage on **ICL reasoning tasks** (e.g., GSM8K) where preserving complete chain-of-thought demonstrations matters.
+> On fact-localisation QA (NarrativeQA) and summarisation (Multi-News), it does **not consistently beat simpler baselines** — LLMLingua outperforms on Multi-News, and BM25+QGCP outperforms SAMS on NarrativeQA.
+> All results are based on 50 samples with a single LLM; treat numbers as preliminary.
 
 ---
 
@@ -17,35 +22,41 @@ An ICL-aware variant (**GrainPrompt-ICL**) additionally protects chain-of-though
 
 | Method | Accuracy | Compression Ratio |
 |--------|----------|-------------------|
-| Full Prompt | 88% | 1.00 |
+| Full Prompt | 86% | 1.00 |
 | **GrainPrompt-ICL** | **84%** | 0.35 |
 | LLMLingua | 74% | 0.52 |
 | Random Drop | 48% | 0.50 |
 
-**GrainPrompt-ICL retains +10 pp accuracy over LLMLingua at a lower compression ratio.**
+**GrainPrompt-ICL achieves +10 pp accuracy over LLMLingua at a lower compression ratio** (based on 50-sample evaluation with DeepSeek-Chat).
 
 ### NarrativeQA (reading comprehension, F1)
 
 | Method | F1 @ CR≈0.5 |
 |--------|-------------|
-| GrainPrompt-noA | **0.053** |
+| **GrainPrompt-noA** (BM25+QGCP) | **0.053** |
 | LLMLingua | 0.050 |
+| GrainPrompt (SAMS+QGCP) | 0.043 |
 | BM25 | 0.049 |
+
+> SAMS underperforms BM25 here because MiniLM embeddings do not capture coreference chains in narrative text. The best-performing GrainPrompt variant uses BM25 for selection, not SAMS.
 
 ### Multi-News (multi-document summarization, ROUGE-1)
 
 | Method | ROUGE-1 @ CR≈0.5 |
 |--------|------------------|
-| LLMLingua | **0.376** |
-| GrainPrompt | 0.332 |
+| **LLMLingua** | **0.376** |
 | BM25 | 0.340 |
+| GrainPrompt (SAMS+QGCP) | 0.332 |
+
+> LLMLingua is the strongest method here. Token-level compression retains entity-dense terms that ROUGE-1 rewards. GrainPrompt does not outperform LLMLingua on this task.
+
+> **Note:** All results are based on 50 samples per task evaluated with the DeepSeek-Chat API. Differences smaller than ~0.005 F1/ROUGE should be treated with caution. Larger-scale evaluation is needed for definitive conclusions.
 
 ---
 
 ## Method Overview
 
 ```
-Input context
      │
      ▼
 ┌─────────────┐     Module B (QGCP)
@@ -64,13 +75,13 @@ Compressed prompt  ──► LLM (DeepSeek / GPT / etc.)
 ```
 
 **Why MMR?**  
-Pure similarity ranking causes semantic overlap between selected sentences. MMR explicitly penalizes redundancy, achieving better coverage–relevance tradeoff.
+Pure similarity ranking over-selects redundant sentences that paraphrase the same fact. MMR penalises this redundancy, improving topical coverage. Note that this helps on concept-query tasks but not on entity-centric fact-localisation (see NarrativeQA results above).
 
-**Why constituent pruning?**  
-Token-level compression (e.g., LLMLingua) can break syntactic boundaries and destroy reasoning chains. QGCP operates at the constituent level, preserving grammaticality.
+**Why constituent pruning (QGCP)?**  
+QGCP trims parentheticals, appositives, and adverbial fillers to reduce token count within each sentence by ~8–15%. In our ablation, removing QGCP changes task performance by ≤0.003 on all tasks — its contribution is token reduction, not quality improvement.
 
-**Why ICL-aware?**  
-In few-shot scenarios, demonstrations have a fixed question–answer structure. GrainPrompt-ICL compresses only the description parts and never truncates mid-reasoning-step, preserving the full chain-of-thought.
+**Why ICL-aware (example-level)?**  
+Token-level compression can bisect a reasoning step mid-sentence (e.g., truncating `"Step 3: multiply 12 by 4 to get 48"` to `"Step 3: multiply 12"`), producing a logically inconsistent demonstration. GrainPrompt-ICL selects whole demonstrations and never truncates solutions. This is the primary source of the GSM8K advantage.
 
 ---
 
@@ -194,6 +205,26 @@ Prompt-Compression/
 
 ---
 
+## Known Limitations
+
+- **Small evaluation scale**: All results use 50 samples per task. Differences in NarrativeQA and Multi-News (< 0.010 F1/ROUGE) are likely within noise and should not be over-interpreted.
+- **Single LLM**: Only DeepSeek-Chat was tested. Results may differ with other models.
+- **ICL-only advantage**: The clear performance gain is on GSM8K (ICL reasoning). On other tasks, GrainPrompt is not the best method.
+- **QGCP coverage**: The six regex rules are hand-crafted for English and cover only common surface patterns. Coverage is limited and the module provides no measurable task-performance benefit in our experiments.
+- **SAMS fails on entity-centric queries**: Sentence embeddings trained on paraphrase pairs do not capture coreference, so SAMS cannot reliably locate answers to "What did X do?" style questions in narrative text.
+- **Short contexts only**: All experiments use contexts truncated at 1024 tokens. Long-context settings (32k+) are not evaluated.
+
+---
+
+## Future Work
+
+- **Adaptive granularity**: Automatically classify the task type and select the appropriate granularity, removing the need for manual configuration.
+- **Hybrid lexical–semantic selection**: Interpolate BM25 and MiniLM scores to handle both entity-centric and concept queries.
+- **Multilingual support**: Replace English-specific QGCP rules with a language-agnostic constituency parser.
+- **Long-context and large-scale evaluation**: Test on SCROLLS / LongBench with 500–1000 samples and multiple open-weight LLMs for statistically reliable conclusions.
+
+---
+
 ## Checkpoint / Resume
 
 All experiment scripts support automatic checkpoint recovery. If a run is interrupted, re-run the same command — it will skip completed (method, ratio) combinations and resume from where it left off. Checkpoints are stored in `results/raw/*.json`.
@@ -218,16 +249,15 @@ All experiment scripts support automatic checkpoint recovery. If a run is interr
 - **LLMLingua** (Jiang et al., EMNLP 2023) — token-level prompt compression via a small language model. [arXiv:2310.05736](https://arxiv.org/abs/2310.05736)
 - **LongLLMLingua** (Jiang et al., ACL 2024) — extends LLMLingua to long-context settings. [arXiv:2310.06839](https://arxiv.org/abs/2310.06839)
 - **RECOMP** (Xu et al., ICLR 2024) — abstractive/extractive recompression with a trained compressor. [arXiv:2310.04408](https://arxiv.org/abs/2310.04408)
-- **PartPrompt** (IEEE TPAMI 2024) — constituent-level prompt pruning, most related to QGCP. [arXiv:2409.15395](https://arxiv.org/abs/2409.15395)
-- **BEAVER** (2026) — budget-aware extraction via reinforcement. [arXiv:2603.19635](https://arxiv.org/abs/2603.19635)
+- **PartPrompt** (Li et al., arXiv 2024) — constituent-level prompt pruning, most related to QGCP. [arXiv:2409.15395](https://arxiv.org/abs/2409.15395)
 
 ---
 
 ## Citation
 
 ```bibtex
-@article{adaptprompt2026,
-  title   = {GrainPrompt: Semantic-Aware Prompt Compression via MMR Selection and Constituent Pruning},
+@article{grainprompt2026,
+  title   = {GrainPrompt: Granularity-Aware Prompt Compression via MMR Selection and Constituent Pruning},
   author  = {Anonymous},
   year    = {2026},
 }
