@@ -44,7 +44,7 @@ An ICL-aware variant (**GrainPrompt-ICL**) lifts Stage 2 to the **example level*
 
 | Method | ROUGE-1 @ CR≈0.5 |
 |--------|------------------|
-| **LLMLingua** | **0.376** |
+| **LLMLingua** | **0.371** |
 | BM25 | 0.340 |
 | GrainPrompt (SAMS+QGCP) | 0.332 |
 
